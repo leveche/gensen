@@ -1,0 +1,308 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8288,        230]*)
+(*NotebookOutlinePosition[      8999,        255]*)
+(*  CellTagsIndexPosition[      8955,        251]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[TextData[{
+  "Here be ***Genetic Algorithm***\n\nNPop\t:\tAnzahl der Individuen in einer \
+Population\nNBib\t:\tAnzahl der Komponenten in einem Individuum-Vektor;   ",
+  StyleBox["Warum \"NBib\"?",
+    FontColor->RGBColor[1, 0, 0]],
+  "\n\nKommentare:\n- rekursive Version von Value bei \
+Timing[ngfind[Pop1,10,100,True]]:\n  14.761 Second\n- direkter Vergleich mit \
+Zielvektor \"target\"  bei Timing[ngfind[Pop1,10,100,True]]:\n  4.406 Second\n\
+- Dublicate mit Table:  2.814 Second auf einem 266MHz-Rechner  (2.123 Second \
+auf einem 350MHz-Rechner)\n- 2.183 mit Typ-Definition in value!"
+}], "Text"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \( (*\ Initialisierungsparameter\ *) \n\nNBib = NumOB; \n
+    Individuum = Flatten[Table[{_Integer}, {NBib}]]; 
+     (*\ ein\ Typ\ \*"\""Array\ of\ Integer \*"\"\<\>  "*) \nNPop = 10; 
+     (*\ 50*) \nNumGen\  = \ 1000; \n$IterationLimit = 4096*2*2*2\), 
+    \($RecursionLimit = 256*2*2*2*2*2\), 
+    \(MutatProb\  = \ 0.1\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(32768\)], "Output"],
+
+Cell[BoxData[
+    \(8192\)], "Output"],
+
+Cell[BoxData[
+    StyleBox["0.1`",
+      StyleBoxAutoDelete->True,
+      PrintPrecision->1]], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+ Bewertungsfunktion
+   value[Liste:Individuum] -> Integer\
+\>", "Subsubsection"],
+
+Cell[BoxData[
+    \(Clear[value]; \nvalue[c : Individuum] := Score3[c]; \n
+    value[c : Flatten[Table[{_}, {NBib}]]] := 
+      Print["\<value: no List of Integers!\>"]; \n
+    value[c : _] := Print["\<value: wrong argument type!\>"]; \)], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(\( (*\n\t
+      \(-\ \(nGmn : \ 
+          langsamere\ aber\ platzsparende\ Alternative\ zu\ NG\n\t - \ 
+            Auch\ sinnvoll\)\), \ 
+      wenn\ Fitness\ keine\ ganzen\ Zahlen\ enth\[ADoubleDot]lt\n\t - \ 
+        kann\ durch\ rekursiver\ Suche\ auf\ der\ sortierten\ Liste\ 
+          distributionFkt\n
+      \t\ \ beschleunigt\ werden\n\t*) \n\n
+    \(nGmn[pop_] := 
+      Module[{pos, tmp}, \n\t\t
+        distributionFkt = 
+          Table[Plus@@Take[Fitness[pop], n], {n, 0, Length[pop]}]; \n\t\t
+        Table[\n\t\t\t\ttmp = Random[Integer, {1, Last[distributionFkt]}]; \n
+          \t\t\t\tFor[pos = Length[pop], 
+             (*\ pos \[GreaterEqual] 1 \[And] \ *) \n
+            \t\t\t\t\t\t\t\t\t\t\t\t\t
+            distributionFkt\[LeftDoubleBracket]pos\[RightDoubleBracket] 
+              \[GreaterEqual] tmp, \n\t\t\t\t\t\t\t\t\t\t\t\t\t\(pos--\), \n
+            \t\t\t\t\t]; \n\t\t\t\t
+          pop\[LeftDoubleBracket]pos\[RightDoubleBracket], {Length[pop]}]\n
+        \t\t]; \)\)\)], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(\( (*
+      NewGNcs[pop_, _Real, _Real] := \ 
+        Block[Sort[pop, \ value[#1] > value[#2]&]; \n\t\t
+          Drop[pop, \ Floor[Floor[\((Length[pop]*\ #1)\)]]]; \n\t\t
+          NewGN2\  = \ 
+            Join[NewGN, \ \((Take[NewGN1, \((Floor[Length[pop]/4])\)])\)]; \n
+          \t\t]\ *) \n\n
+    NewGNcs[pop_, p1_Real, p2_Real] := 
+      Block[\n\t\tSort[pop, \ value[#1] > value[#2]&]; \n\t\t
+        Join[\ \((
+            Take[Drop[pop, \ Floor[\((Length[pop]*\ p1)\)]], 
+              \((Floor[Length[pop]*p2])\)])\)]; \n]\)\)], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+ Mit der Bewertungsfunktion value wird jedem Indivium der \
+Population pop die 
+  Fitness zugeordnet:\
+\>", "Subsubsection"],
+
+Cell[BoxData[
+    \(\(Fitness[pop_] := Map[value, pop]; \)\)], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[{
+    \( (*\ 
+      CROSSOVER\  - \ 
+        Die\ Listen\ l1\ und\ l2\ werden\ an\ einer\ zuf\[ADoubleDot]lligen\ 
+          Stelle\n
+      \t\t\t\(\[UDoubleDot]berkreuzt.\)\n\t*) \n
+    Crossover[l1_, l2_] := 
+      Crossover1[l1, l2, Random[Integer, {1, Length[l1]}]]\), 
+    \(Crossover1[l1_, l2_, p_] := 
+      List[Flatten[Append[Take[l1, p], Take[l2, p - Length[l1]]]], \n\t\t
+        Flatten[Append[Take[l2, p], Take[l1, p - Length[l2]]]]]\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(\( (*\ 
+      CROSSALL\  - \ 
+        Jeweils\ zwei\ benachbarte\ Elemente\ der\ Liste\ l\ werden\ mit\ der
+          \ Funktion\ crossover\ 
+          bearbeitet.\ \n\t\t\t
+            \(Bedingung : \ Anzahl\ der\ Elemente\ der\ Liste\ l\ gerade\)\n
+      \t*) \nCrossall[l_] := 
+      If[l == {}, {}, 
+        Join[Crossover[Flatten[Take[l, 1]], Flatten[Take[l, {2, 2}]]], 
+          Crossall[Drop[l, 2]]]]\n\t\t\)\)], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[{
+    \( (*\ Mutation\ *) \nMutatePop[pop_] := Map[Mutate, pop]\), 
+    \(Mutate[ind_] := 
+      If[Random[Real] > \ MutatProb, 
+        ReplacePart[ind, Random[Integer], Random[Integer, {1, Length[ind]}]], 
+        ind]\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[{
+    \(\nSurvivalChance[pop_] := Map[\((#\ /Plus@@pop)\)&, Fitness[pop]]; \n
+     (*\ n\ Kopien\ der\ Liste\ list\ *) \n
+     (*\ Zusammenstellung\ eines\ Genpools\ entsprechend\ der\n
+      \t\t\tsurvivalchances\ s\ einer\ Population\ \(pop.\)\t\t\t*) \n
+    GenPool[s_, p_] := Flatten[GenPool1[s, p], 1]\), 
+    \(GenPool1[{}, pop_] := {}\), 
+    \(GenPool1[survivalchances_, pop_] := 
+      Join[List[GenPool[Rest[survivalchances], Rest[pop]]], 
+        List[Dublicate[First[pop], First[survivalchances]]]]\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(\(ngfind[pop_, npop_, ngenmax_, mut_] := 
+      Module[{tmpPop}, \n\t\ttmpPop = pop; \n\t\t
+        For[ngen = 1, ngen < ngenmax, \(ngen++\), \n\t\t\t\t
+          tmpPop = 
+            If[mut == True, \n\t\t\t\t\t
+              ngfind1[MutatePop[Crossall[nGmn[tmpPop]], npop, ngen + 1, 
+                  ngenmax, mut]], \n\t\t\t\t\t
+              ngfind1[Crossall[nGmn[tmpPop]], npop, ngen + 1, ngenmax, mut]\n
+              \t\t\t\t]; \n\t\t\t\t
+          If[Mod[ngen\ , 100] == 0, \n\t\t\t\t\tPrettyPrint[ngen]; \n
+            \t\t\t\t\tPrint["\<Hier besten aktuellen Score ausgeben!\>"]; \n
+            \t\t\t\t]; \n\t\t]; \n\t\t
+        Print[StringForm[
+            "\<Termination after `` generations (maximum). NPop=``. \
+mutations=``.\>", ngenmax, npop, mut]]; \n]; \)\)], "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \( (*Beispiel*) \n
+    Crossall[{{1, 2, 3, 5}, {a, b, c, d}, {1, 3, 4}, {x, y, z}}]\), 
+    \(Crossover[{1, 2, 3}, {a, b, c}]\)}], "Input"],
+
+Cell[BoxData[
+    \({{1, 2, c, d}, {a, b, 3, 5}, {1, 3, z}, {x, y, 4}}\)], "Output"],
+
+Cell[BoxData[
+    \({{1, b, c}, {a, 2, 3}}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[""], "Input"]
+}, Open  ]]
+},
+FrontEndVersion->"Microsoft Windows 3.0",
+ScreenRectangle->{{0, 1152}, {0, 808}},
+AutoGeneratedPackage->Automatic,
+WindowToolbars->"EditBar",
+WindowSize->{587, 628},
+WindowMargins->{{Automatic, -6}, {Automatic, -2}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 608, 10, 242, "Text"],
+
+Cell[CellGroupData[{
+Cell[2342, 63, 383, 7, 210, "Input",
+  InitializationCell->True],
+Cell[2728, 72, 39, 1, 29, "Output"],
+Cell[2770, 75, 38, 1, 29, "Output"],
+Cell[2811, 78, 103, 3, 29, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2951, 86, 90, 3, 60, "Subsubsection"],
+Cell[3044, 91, 276, 5, 110, "Input",
+  InitializationCell->True],
+Cell[3323, 98, 1064, 22, 370, "Input",
+  InitializationCell->True],
+Cell[4390, 122, 568, 12, 210, "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[4995, 139, 134, 4, 60, "Subsubsection"],
+Cell[5132, 145, 99, 2, 30, "Input",
+  InitializationCell->True],
+Cell[5234, 149, 501, 11, 150, "Input",
+  InitializationCell->True],
+Cell[5738, 162, 477, 11, 150, "Input",
+  InitializationCell->True],
+Cell[6218, 175, 275, 6, 110, "Input",
+  InitializationCell->True],
+Cell[6496, 183, 565, 10, 210, "Input",
+  InitializationCell->True],
+Cell[7064, 195, 838, 16, 330, "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+Cell[7927, 215, 158, 3, 70, "Input"],
+Cell[8088, 220, 84, 1, 29, "Output"],
+Cell[8175, 223, 56, 1, 29, "Output"]
+}, Open  ]],
+Cell[8246, 227, 26, 0, 30, "Input"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+
