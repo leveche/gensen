@@ -1,0 +1,409 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 4.0,
+MathReader 4.0, or any compatible application. The data for the notebook 
+starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     12126,        330]*)
+(*NotebookOutlinePosition[     12798,        354]*)
+(*  CellTagsIndexPosition[     12754,        350]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[TextData[{
+  Cell[BoxData[
+      \(O\_K\)]],
+  "\t:\tMenge der Oligo-Kanditaten\n",
+  Cell[BoxData[
+      RowBox[{
+        StyleBox["\[ScriptCapitalP]",
+          FontSize->19], \((O\_K)\)}]]],
+  ":\tMenge aller Teilmengen von ",
+  Cell[BoxData[
+      \(O\_K\)]],
+  " , d.h.\n\t\tMenge aller m\[ODoubleDot]glichen Oligo-Bibliotheken\n",
+  Cell[BoxData[
+      \(O\_B\)]],
+  "\t:\tOligo-Bibliothek\t",
+  Cell[BoxData[
+      RowBox[{\(O\_B\), "\[Subset]", \(O\_K\), "\[Element]", 
+        RowBox[{
+          StyleBox["\[ScriptCapitalP]",
+            FontSize->19], \((O\_K)\)}]}]]],
+  " \nx\t:\teine Oligo-Bibliothek wird durch ein \"fuzzy\"\n\t\tx in ",
+  Cell[BoxData[
+      StyleBox[\(\[DoubleStruckCapitalR]\^\(\(|\)\((O\_K)\)\(|\)\)\),
+        FontSize->15]]],
+  " kodiert.\n",
+  Cell[BoxData[
+      StyleBox[\(f\_\(O : O\_K\) \[Rule] \[DoubleStruckCapitalR]\^n\_O\),
+        FontSize->15]]],
+  "\t:\tBewertungsfunktion eines Oligos; \n\t\t\t\t",
+  Cell[BoxData[
+      \(TraditionalForm\`n\_O\)]],
+  "=Anzahl der zu optimierenden Bewertungsgr\[ODoubleDot]\[SZ]en\n",
+  Cell[BoxData[
+      RowBox[{
+        RowBox[{
+          StyleBox[\(f\_C\),
+            FontSize->15], ":", 
+          SuperscriptBox[
+            StyleBox["\[DoubleStruckCapitalR]",
+              FontSize->15], \(\(\((\(|\)\(O\))\)\_K\)\(|\)\)]}], "\[Rule]", 
+        StyleBox["\[DoubleStruckCapitalR]",
+          FontSize->16]}]]],
+  "\t:\tBewertungsfunktion einer Oligo-Bibliothek; \n",
+  Cell[BoxData[
+      \(w\)]],
+  "\t:\t\nNumOK\t:\tAnzahl der Oligo-Kandidaten\nNumOB\t:\tmaximale Gr\
+\[ODoubleDot]\[SZ]e der Oligo-Bibliothek\n",
+  Cell[BoxData[
+      \(TraditionalForm\`\(Q\_+\)\)]],
+  "\t\t:\tMenge zu detektierender Sequenzen (z.B. HCV-Sequenzen)\n",
+  Cell[BoxData[
+      \(TraditionalForm\`\(Q\_-\)\)]],
+  "\t\t:\tMenge der Sequenzen gegen die man man sich\n\t\t\tabgrenzen m\
+\[ODoubleDot]chte.\n",
+  Cell[BoxData[
+      \(TraditionalForm\`\(N\_+\) = \(\(|\)\(Q\_+\)\(|\)\)\)]],
+  "\n",
+  Cell[BoxData[
+      \(TraditionalForm\`\(N\_-\) = \(\(|\)\(Q\_-\)\(|\)\)\)]],
+  "\ns\t\t:\tOligobibliotheks-Kandidat; s \[Subset] ",
+  Cell[BoxData[
+      \(TraditionalForm\`\(Q\_+\) \[Union] \(Q\_-\)\)]],
+  ";   |s|=NumOB\nfs\t\t:\tFuzzy-Set zu s; fs \[Epsilon] ",
+  Cell[BoxData[
+      StyleBox[\(\[DoubleStruckCapitalR]\^\(NumOK\[Times]2\)\),
+        FontSize->15]]],
+  " \nfs\[LeftDoubleBracket]j,1\[RightDoubleBracket]\t\t:\tfuzzy Zugeh\
+\[ODoubleDot]rigkeit\nfs\[LeftDoubleBracket]j,2\[RightDoubleBracket]\t\t:\t\
+Gewicht w aus dem GA-Artikel\n\nDie Funktion f[x_,s_,w_] z\[ADoubleDot]hlt \
+doppelte Matches eines Oligos in \n"
+}], "Text"],
+
+Cell[BoxData[
+    \(<< Statistics`DescriptiveStatistics`\)], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(PrettyPrint[x_] := Print[HoldForm[x], "\< = \>", x]; \n
+    SetAttributes[PrettyPrint, \ HoldAll]\)], "Input",
+  CellDingbat->"\[FilledSquare]",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(oligoScore[
+        o_] := \[Sum]\+\(j = First[\(Q\_+\)]\)\%\(Last[\(Q\_+\)]\)match\
+\[LeftDoubleBracket]j, 
+            o\[RightDoubleBracket] - \[Sum]\+\(j = First[\(Q\_-\)]\)\%\(Last[\
+\(Q\_-\)]\)match\[LeftDoubleBracket]j, o\[RightDoubleBracket]\)], "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \(\(match = Table[0, {j, Last[\(Q\_-\)]}, {k, NumOK}];\)\), "\n", 
+    \(\(Map[k = #; \n\t
+        match\[LeftDoubleBracket]Random[
+              Integer, {First[\(Q\_+\)], Last[\(Q\_+\)]}], 
+            k\[RightDoubleBracket] = 
+          1; \n\t\(Do[\n\t\t\tmatch\[LeftDoubleBracket]
+                  Random[Integer, {First[\(Q\_+\)], Last[\(Q\_-\)]}], 
+                  k\[RightDoubleBracket] = Random[Integer], {12}];\)\n\t\t &, 
+        O\_K];\)\), "\n", 
+    \(\(sortedOk = \ 
+        Sort[O\_K, oligoScore[#1] > oligoScore[#2] &];\)\), "\n", 
+    \(oligoScore[First[sortedOk]]\), "\n", 
+    \(\(For[j = First[\(Q\_+\)], 
+        j \[LessEqual] 
+          Last[\(Q\_-\)], \(j++\), \n\t\ \ \(If[
+            match\[LeftDoubleBracket]j, 
+                First[sortedOk]\[RightDoubleBracket] \[Equal] 
+              0, \n\t\t\tmatch\[LeftDoubleBracket]j, 
+                First[sortedOk]\[RightDoubleBracket] = 
+              1; \n\t\t\ \ Break[];\n\t\t];\)\n\t];\)\), "\n", 
+    \(\(For[j = First[\(Q\_+\)], 
+        j \[LessEqual] 
+          Last[\(Q\_-\)], \(j++\), \n\t\ \ \(If[
+            match\[LeftDoubleBracket]j, 
+                First[sortedOk]\[RightDoubleBracket] \[Equal] 
+              0, \n\t\t\tmatch\[LeftDoubleBracket]j, 
+                First[sortedOk]\[RightDoubleBracket] = 
+              1; \n\t\t\ \ Break[];\n\t\t];\)\n\t];\)\), "\n", 
+    \(oligoScore[First[sortedOk]]\), "\n", 
+    \(\(For[i = 1, i \[LessEqual] 4, \(i++\), \n\t
+        oTemp = Random[Integer, {First[O\_K], Last[O\_K]}]; \n\t
+        For[j = First[\(Q\_+\)], 
+          j \[LessEqual] 
+            Last[\(Q\_-\)], \(j++\), \n\t\t\(match\[LeftDoubleBracket]j, 
+                sortedOk\[LeftDoubleBracket]
+                  oTemp\[RightDoubleBracket]\[RightDoubleBracket] = 
+              match\[LeftDoubleBracket]j, 
+                First[sortedOk]\[RightDoubleBracket];\)\n\t];\n];\)\)}], \
+"Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(4\)], "Output"],
+
+Cell[BoxData[
+    \(6\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \(\(Match[SeqList_, OligoList_] := 
+        Block[\({}\)\(,\)\n\t\t\n];\)\), "\n", 
+    \(\(MatchList[SeqList_, OligoList_] := 
+        Block[{o}, \n\t\tmatchList = {}; \n\t\tMap[
+            o = #; \n\t\t\t\(matchList = 
+                matchList\  \[Union] \ 
+                  Select[SeqList, 
+                    match\[LeftDoubleBracket]#1, o\[RightDoubleBracket] == 
+                        1 &];\n\t\t\t\  &\), \ 
+            OligoList]; \n\t\tmatchList\n\t\t];\)\), "\n", 
+    \(\(MatchCount[SeqList_, OligoList_] := 
+        Block[{}, \n\t\tLength[
+            MatchList[SeqList, OligoList]]\n\t\t];\)\), "\n", 
+    \(\(Sensitivity[SeqList_, OligoList_] := 
+        Block[{}, \n\t\tMatchCount[SeqList, OligoList]\/Length[SeqList] // 
+            N\n\t\t];\)\n (*\n\t\t\ Sensitivit\[ADoubleDot]t\ der\ Komplement \
+- Menge\ bei\n\t\t\tinvertiertem\ Test\ \n\t*) \), "\n", 
+    \(\t\(Specifity[SeqList_, OligoList_] := 
+        1 - Sensitivity[Complement[\(Q\_+\) \[Union] \(Q\_-\), SeqList], 
+            OligoList];\)\n\), "\n", 
+    \(\(Uebereinstimmung[OligoList_] := 
+        Block[{}, \n\t\t (*\ 
+            erstmal\ nicht\ allgemeing\[UDoubleDot]ltig\ \(implementiert!\)\ \
+*) \n\t\t\(MatchCount[\(Q\_+\), OligoList] + MatchCount[\(Q\_-\), \
+OligoList]\)\/\(\(N\_+\) + \(N\_-\)\) // N\n\t\t];\)\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    \(General::"spell" \(\(:\)\(\ \)\) 
+      "Possible spelling error: new symbol name \"\!\(Match\)\" is similar to \
+existing symbols \!\({Catch, match, MatchQ}\)."\)], "Message"],
+
+Cell[BoxData[
+    \(General::"spell1" \(\(:\)\(\ \)\) 
+      "Possible spelling error: new symbol name \"\!\(matchList\)\" is \
+similar to existing symbol \"\!\(MatchList\)\"."\)], "Message"]
+}, Open  ]],
+
+Cell[BoxData[{
+    \(\(maxMatch = 
+        Max[Table[
+            MatchCount[\(Q\_+\) \[Union] \(Q\_-\), {O\_K\[LeftDoubleBracket]
+                  i\[RightDoubleBracket]}], {i, First[O\_K], 
+              Last[O\_K]}]];\)\), "\n", 
+    \(ShowHybSignals[OligoList_] := 
+      Block[{}, \n
+        HybSignalsPlus = 
+          Table[\n\t\tMatchCount[\(Q\_+\), {OligoList\[LeftDoubleBracket]
+                  i\[RightDoubleBracket]}], {i, 1, NumOB}]; \n
+        HybSignalsMinus = 
+          Table[\n\t\tMatchCount[\(Q\_-\), {OligoList\[LeftDoubleBracket]
+                  i\[RightDoubleBracket]}], {i, 1, NumOB}]; \n\t
+        g1 = ListDensityPlot[Thread[{HybSignalsPlus, HybSignalsPlus}], \ 
+            Mesh\  -> \ False, AspectRatio \[Rule] 5, 
+            PlotRange \[Rule] {0, maxMatch}, 
+            DisplayFunction \[Rule] Identity]; \n\t
+        g2 = ListDensityPlot[Thread[{HybSignalsMinus, HybSignalsMinus}], \ 
+            Mesh\  -> \ False, AspectRatio \[Rule] 5, 
+            PlotRange \[Rule] {0, maxMatch}, 
+            DisplayFunction \[Rule] Identity]; \n\t
+        g3 = Graphics[{Text[
+                ToString[Sensitivity[\(Q\_+\), OligoList]], {1, 
+                  0}, {\(-0.5\), 0}]}]; \n\t
+        Show[GraphicsArray[{{g1, g2, g3}}]]\n\t]\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[{
+    \(f[x_, s_, 
+        w_] := \[Sum]\+\(j = 1\)\%\(Length[s]\)w\[LeftDoubleBracket]
+            j\[RightDoubleBracket]\ match\[LeftDoubleBracket]x, 
+            s\[LeftDoubleBracket]
+              j\[RightDoubleBracket]\[RightDoubleBracket]\), "\n", 
+    \(f2[x_, s_] := 
+      N[\[Sum]\+\(j = 1\)\%\(Length[s]\)match\[LeftDoubleBracket]x, 
+            s\[LeftDoubleBracket]
+              j\[RightDoubleBracket]\[RightDoubleBracket]]\), "\n", 
+    \(ff[x_, 
+        fs_] := \[Sum]\+\(j = First[O\_K]\)\%\(Last[O\_K]\)fs\
+\[LeftDoubleBracket]j, 1\[RightDoubleBracket] 
+          fs\[LeftDoubleBracket]j, 
+            2\[RightDoubleBracket]\ match\[LeftDoubleBracket]x, 
+            j\[RightDoubleBracket]\)}], "Input",
+  InitializationCell->True],
+
+Cell[BoxData[
+    RowBox[{"\t\t", 
+      \( (*\ \(F\&^\_+\) = 
+          \(\[Sum]\+\(i = First[\(Q\_+\)]\)\%\(Last[\(Q\_+\)]\)f[i, s, w]
+                \)\/\(N\_+\); \ \ *) \), "\n", "\n", 
+      RowBox[{"(*", " ", 
+        StyleBox[\(Nachpruefen!\),
+          FontSize->13,
+          FontColor->RGBColor[1, 0, 0]], " ", "*)"}]}]], "Input"],
+
+Cell[BoxData[
+    \(\(Score3[s_] := Sensitivity[\(Q\_+\), s] + Specifity[\(Q\_+\), s]; 
+    \)\)], "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \(MatchList[\(Q\_+\), oligobibOpt]\), 
+    \(Length[MatchList[\(Q\_+\), oligobibOpt]]\)}], "Input"],
+
+Cell[BoxData[
+    \({}\)], "Output"],
+
+Cell[BoxData[
+    \(0\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \(MatchList[\(Q\_+\), {14, 9}]\), 
+    \(MatchCount[\(Q\_+\), {14, 9}]\), 
+    \(MatchCount[\(Q\_+\), {14}]\), 
+    \(Sensitivity[\(Q\_+\), {14, 9}]\), 
+    \(Uebereinstimmung[{14, 9}]\)}], "Input"],
+
+Cell[BoxData[
+    \({16, 17, 19, 22, 24, 34, 42, 45, 48, 57, 63}\)], "Output"],
+
+Cell[BoxData[
+    \(11\)], "Output"],
+
+Cell[BoxData[
+    \(9\)], "Output"],
+
+Cell[BoxData[
+    \(0.220000000000000017`\)], "Output"],
+
+Cell[BoxData[
+    \(0.152941176470588242`\)], "Output"]
+}, Open  ]]
+},
+FrontEndVersion->"4.0 for X",
+ScreenRectangle->{{0, 1024}, {0, 748}},
+AutoGeneratedPackage->Automatic,
+WindowSize->{619, 648},
+WindowMargins->{{38, Automatic}, {Automatic, 17}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1717, 49, 2623, 70, 440, "Text"],
+Cell[4343, 121, 97, 2, 27, "Input",
+  InitializationCell->True],
+Cell[4443, 125, 192, 4, 43, "Input",
+  InitializationCell->True],
+Cell[4638, 131, 310, 6, 56, "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+Cell[4973, 141, 1947, 40, 462, "Input",
+  InitializationCell->True],
+Cell[6923, 183, 35, 1, 27, "Output"],
+Cell[6961, 186, 35, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[7033, 192, 1370, 26, 502, "Input",
+  InitializationCell->True],
+Cell[8406, 220, 196, 3, 33, "Message"],
+Cell[8605, 225, 191, 3, 33, "Message"]
+}, Open  ]],
+Cell[8811, 231, 1304, 26, 284, "Input",
+  InitializationCell->True],
+Cell[10118, 259, 762, 16, 167, "Input",
+  InitializationCell->True],
+Cell[10883, 277, 341, 8, 78, "Input"],
+Cell[11227, 287, 135, 3, 27, "Input",
+  InitializationCell->True],
+
+Cell[CellGroupData[{
+Cell[11387, 294, 118, 2, 43, "Input"],
+Cell[11508, 298, 36, 1, 27, "Output"],
+Cell[11547, 301, 35, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[11619, 307, 217, 5, 91, "Input"],
+Cell[11839, 314, 78, 1, 27, "Output"],
+Cell[11920, 317, 36, 1, 27, "Output"],
+Cell[11959, 320, 35, 1, 27, "Output"],
+Cell[11997, 323, 55, 1, 27, "Output"],
+Cell[12055, 326, 55, 1, 27, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+
